@@ -1,0 +1,70 @@
+{
+  "name": "openclaw-plugin-manager",
+  "version": "0.1.0",
+  "description": "OpenClaw插件管理器 - 罗列推荐插件并自动安装",
+  "main": "src/index.js",
+  "bin": {
+    "openclaw-plugins": "./bin/openclaw-plugins.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "format": "prettier --write \"src/**/*.js\"",
+    "build": "npm run lint && npm test",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "openclaw",
+    "plugins",
+    "manager",
+    "automation",
+    "tools",
+    "cli"
+  ],
+  "author": "opencc2026 <opencc2026@hotmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opencc2026/openclaw-plugin-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/opencc2026/openclaw-plugin-manager/issues"
+  },
+  "homepage": "https://github.com/opencc2026/openclaw-plugin-manager#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1",
+    "yaml": "^2.3.4",
+    "fs-extra": "^11.2.0",
+    "semver": "^7.5.4",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.53.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "prettier": "^3.1.0",
+    "nodemon": "^3.0.1"
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "README.md",
+    "SKILL.md",
+    "LICENSE",
+    "package.json"
+  ]
+}

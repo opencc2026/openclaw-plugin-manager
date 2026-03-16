@@ -1,0 +1,153 @@
+{
+  "plugins": [
+    {
+      "id": "feishu-doc",
+      "name": "飞书文档",
+      "version": "1.2.0",
+      "description": "飞书文档读写操作技能，支持文档创建、编辑、分享等功能",
+      "categories": ["productivity", "office", "collaboration"],
+      "keywords": ["feishu", "document", "office", "collaboration"],
+      "author": "OpenClaw Team",
+      "homepage": "https://github.com/openclaw/feishu-doc",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install feishu-doc",
+      "configTemplate": {
+        "appId": "your_app_id",
+        "appSecret": "your_app_secret",
+        "defaultSpace": "personal"
+      },
+      "configGuide": {
+        "questions": [
+          {
+            "type": "input",
+            "name": "appId",
+            "message": "请输入飞书应用ID:"
+          },
+          {
+            "type": "password",
+            "name": "appSecret",
+            "message": "请输入飞书应用密钥:"
+          }
+        ],
+        "mapping": [
+          {
+            "question": "appId",
+            "key": "appId"
+          },
+          {
+            "question": "appSecret",
+            "key": "appSecret"
+          }
+        ]
+      }
+    },
+    {
+      "id": "feishu-drive",
+      "name": "飞书云盘",
+      "version": "1.1.0",
+      "description": "飞书云盘文件管理技能，支持文件上传、下载、分享等功能",
+      "categories": ["productivity", "storage", "collaboration"],
+      "keywords": ["feishu", "drive", "storage", "file"],
+      "author": "OpenClaw Team",
+      "homepage": "https://github.com/openclaw/feishu-drive",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install feishu-drive"
+    },
+    {
+      "id": "feishu-wiki",
+      "name": "飞书知识库",
+      "version": "1.0.0",
+      "description": "飞书知识库导航和管理技能",
+      "categories": ["productivity", "knowledge", "collaboration"],
+      "keywords": ["feishu", "wiki", "knowledge", "documentation"],
+      "author": "OpenClaw Team",
+      "homepage": "https://github.com/openclaw/feishu-wiki",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install feishu-wiki"
+    },
+    {
+      "id": "clawhub",
+      "name": "ClawHub技能管理",
+      "version": "0.7.0",
+      "description": "技能搜索、安装、更新和管理工具",
+      "categories": ["development", "tools", "management"],
+      "keywords": ["skills", "management", "install", "update"],
+      "author": "OpenClaw Team",
+      "homepage": "https://clawhub.ai",
+      "recommended": true,
+      "installation": "通过npm安装: npm install -g clawhub"
+    },
+    {
+      "id": "git-helper",
+      "name": "Git助手",
+      "version": "1.0.0",
+      "description": "Git操作辅助工具，简化常用Git命令",
+      "categories": ["development", "tools", "git"],
+      "keywords": ["git", "version-control", "development"],
+      "author": "OpenClaw Community",
+      "homepage": "https://github.com/openclaw/git-helper",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install git-helper"
+    },
+    {
+      "id": "meeting-minutes",
+      "name": "会议纪要生成器",
+      "version": "2.3.3",
+      "description": "自动生成会议纪要和行动项",
+      "categories": ["productivity", "office", "ai"],
+      "keywords": ["meeting", "minutes", "productivity", "ai"],
+      "author": "bytesagain",
+      "homepage": "https://clawhub.ai/skills/meeting-minutes",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install meeting-minutes"
+    },
+    {
+      "id": "code-review",
+      "name": "代码审查助手",
+      "version": "1.2.0",
+      "description": "自动化代码审查和质量检查",
+      "categories": ["development", "quality", "tools"],
+      "keywords": ["code", "review", "quality", "development"],
+      "author": "OpenClaw Community",
+      "homepage": "https://github.com/openclaw/code-review",
+      "recommended": false,
+      "installation": "通过clawhub安装: clawhub install code-review"
+    },
+    {
+      "id": "docker-manager",
+      "name": "Docker管理器",
+      "version": "1.1.0",
+      "description": "Docker容器和镜像管理工具",
+      "categories": ["development", "devops", "containers"],
+      "keywords": ["docker", "containers", "devops", "deployment"],
+      "author": "OpenClaw Community",
+      "homepage": "https://github.com/openclaw/docker-manager",
+      "recommended": false,
+      "installation": "通过clawhub安装: clawhub install docker-manager"
+    },
+    {
+      "id": "ai-code-assistant",
+      "name": "AI代码助手",
+      "version": "2.0.0",
+      "description": "AI驱动的代码编写和优化助手",
+      "categories": ["development", "ai", "tools"],
+      "keywords": ["ai", "code", "assistant", "development"],
+      "author": "OpenClaw AI Team",
+      "homepage": "https://github.com/openclaw/ai-code-assistant",
+      "recommended": true,
+      "installation": "通过clawhub安装: clawhub install ai-code-assistant"
+    },
+    {
+      "id": "weather",
+      "name": "天气查询",
+      "version": "1.0.0",
+      "description": "天气查询和预报技能",
+      "categories": ["tools", "information", "productivity"],
+      "keywords": ["weather", "forecast", "information"],
+      "author": "OpenClaw Team",
+      "homepage": "https://github.com/openclaw/weather",
+      "recommended": false,
+      "installation": "通过clawhub安装: clawhub install weather"
+    }
+  ]
+}
