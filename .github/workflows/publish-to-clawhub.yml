@@ -1,243 +1,44 @@
-name: Publish to ClawHub
+name: Simple Publish
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'SKILL.md'
-      - 'package.json'
-      - 'bin/**'
-  pull_request:
-    branches: [ main ]
-    types: [closed]
-    paths:
-      - 'src/**'
-      - 'SKILL.md'
-      - 'package.json'
-      - 'bin/**'
-  workflow_dispatch:  # 允许手动触发
-  schedule:
-    # 每周一凌晨2点检查更新
-    - cron: '0 2 * * 1'
 
 jobs:
   publish:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
     
-    - name: Install dependencies
-      run: |
-        npm install -g clawhub
-        npm install
-    
-    - name: Run tests
-      run: |
-        if [ -f "package.json" ] && grep -q '"test"' package.json; then
-          npm test
-        else
-          echo "No tests configured"
-        fi
-    
-    - name: Validate Skill
-      run: |
-        echo "Validating Skill structure..."
-        
-        # Check required files
-        REQUIRED_FILES=("SKILL.md" "package.json" "bin/openclaw-plugins.js" "src/index.js")
-        for file in "${REQUIRED_FILES[@]}"; do
-          if [ ! -f "$file" ]; then
-            echo "❌ Required file not found: $file"
-            exit 1
-          fi
-        done
-        
-        # Check SKILL.md format
-        if ! head -20 SKILL.md | grep -q "name:"; then
-          echo "❌ SKILL.md missing name field"
-          exit 1
-        fi
-        
-        echo "✅ Skill structure validated"
-    
-    - name: Build CLI tool
-      run: |
-        echo "Building CLI tool..."
-        chmod +x bin/openclaw-plugins.js
-        
-        # Test CLI help
-        if node bin/openclaw-plugins.js --help > /dev/null 2>&1; then
-          echo "✅ CLI tool works correctly"
-        else
-          echo "❌ CLI tool test failed"
-          exit 1
-        fi
+    - name: Install clawhub
+      run: npm install -g clawhub
     
     - name: Login to ClawHub
       env:
         CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
       run: |
         if [ -z "$CLAWHUB_TOKEN" ]; then
-          echo "❌ CLAWHUB_TOKEN not set"
+          echo "ERROR: CLAWHUB_TOKEN is not set"
           echo "Please add CLAWHUB_TOKEN to repository secrets"
-          echo ""
-          echo "To get CLAWHUB_TOKEN:"
-          echo "1. Visit https://clawhub.ai"
-          echo "2. Login to your account"
-          echo "3. Go to Settings > API Tokens"
-          echo "4. Generate a new token with publish permissions"
-          echo "5. Add it to repository secrets as CLAWHUB_TOKEN"
           exit 1
         fi
-        
-        echo "Logging in to ClawHub..."
         echo "$CLAWHUB_TOKEN" | clawhub login --token
-        
-        # Verify login
-        if clawhub whoami; then
-          echo "✅ Successfully logged in to ClawHub"
-        else
-          echo "⚠️ Unable to verify login, continuing anyway"
-        fi
+        echo "✅ Logged in to ClawHub"
     
     - name: Publish to ClawHub
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "Publishing to ClawHub..."
-        
-        # Get skill name from SKILL.md
-        SKILL_NAME=$(grep -m1 "^name:" SKILL.md | cut -d: -f2 | tr -d ' ' | tr -d '\r')
-        VERSION=$(node -p "require('./package.json').version")
-        
-        echo "Skill: $SKILL_NAME"
-        echo "Version: $VERSION"
-        echo "Repository: ${{ github.repository }}"
-        
-        # Check if skill already exists
-        if clawhub inspect "$SKILL_NAME" > /dev/null 2>&1; then
-          echo "Skill already exists on ClawHub, updating..."
-          UPDATE_FLAG="--force"
+        echo "📦 Publishing to ClawHub..."
+        if clawhub publish .; then
+          echo "✅ Successfully published!"
         else
-          echo "Publishing new skill..."
-          UPDATE_FLAG=""
-        fi
-        
-        # Publish the skill
-        if clawhub publish . $UPDATE_FLAG; then
-          echo "✅ Successfully published to ClawHub"
-          
-          # Update badge in README if exists
-          if [ -f "README.md" ]; then
-            BADGE_URL="https://img.shields.io/clawhub/v/$SKILL_NAME"
-            sed -i "s|https://img.shields.io/clawhub/v/[^)]*|$BADGE_URL|g" README.md
-          fi
-          
-          # Create GitHub release for version tags
-          if [[ "${{ github.event.head_commit.message }}" =~ [vV]?[0-9]+\.[0-9]+\.[0-9]+ ]] || [[ "${{ github.ref }}" =~ refs/tags/v ]]; then
-            echo "Creating GitHub release..."
-            gh release create "v$VERSION" \
-              --title "v$VERSION - $SKILL_NAME" \
-              --notes "## What's Changed\n\nAuto-generated release for ClawHub publication\n\n**Skill**: $SKILL_NAME\n**Version**: $VERSION\n**Published**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" \
-              --target main
-          fi
-        else
-          echo "❌ Failed to publish to ClawHub"
+          echo "❌ Failed to publish"
           exit 1
         fi
-    
-    - name: Update documentation
-      if: success()
-      run: |
-        echo "Updating documentation..."
-        
-        # Generate skill usage documentation
-        cat > USAGE.md << 'EOF'
-# Usage Documentation
-
-## Installation
-```bash
-clawhub install $SKILL_NAME
-```
-
-## Basic Commands
-```bash
-# For agent-essential-skills
-const skills = require('agent-essential-skills');
-
-# For openclaw-plugin-manager
-openclaw-plugins --help
-```
-
-## Latest Version: $(node -p "require('./package.json').version")
-**Published**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-**Build**: ${{ github.run_id }}
-EOF
-        
-        # Commit documentation updates if changed
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add USAGE.md
-        if git diff --cached --quiet; then
-          echo "No documentation changes"
-        else
-          git commit -m "docs: update usage documentation [skip ci]"
-          git push
-        fi
-    
-    - name: Send notification
-      if: always()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-        username: 'ClawHub Publisher'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    
-    - name: Success summary
-      if: success()
-      run: |
-        echo "🎉 Publication Summary"
-        echo "====================="
-        echo "Skill: $(grep -m1 "^name:" SKILL.md | cut -d: -f2 | tr -d ' ' | tr -d '\r')"
-        echo "Version: $(node -p "require('./package.json').version")"
-        echo "Repository: ${{ github.repository }}"
-        echo "Commit: ${{ github.sha }}"
-        echo "Workflow: ${{ github.workflow }}"
-        echo "Run ID: ${{ github.run_id }}"
-        echo ""
-        echo "Next steps:"
-        echo "1. Visit https://clawhub.ai to see your published skill"
-        echo "2. Test installation: clawhub install $(grep -m1 "^name:" SKILL.md | cut -d: -f2 | tr -d ' ' | tr -d '\r')"
-        echo "3. Share with the community!"
-    
-    - name: Failure summary
-      if: failure()
-      run: |
-        echo "❌ Publication Failed"
-        echo "===================="
-        echo "Repository: ${{ github.repository }}"
-        echo "Commit: ${{ github.sha }}"
-        echo "Workflow: ${{ github.workflow }}"
-        echo "Run ID: ${{ github.run_id }}"
-        echo ""
-        echo "Common issues:"
-        echo "1. Missing CLAWHUB_TOKEN secret"
-        echo "2. Invalid ClawHub credentials"
-        echo "3. Skill validation failed"
-        echo "4. Network issues"
-        echo ""
-        echo "Check the logs above for specific error details."
